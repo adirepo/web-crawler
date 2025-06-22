@@ -5,7 +5,7 @@ Web Crawler is a Spring Boot application designed to crawl web pages from a give
 domain and can optionally include external links based on configuration.
 
 ## Features
-- **Domain Crawling**: Accepts a domain URL via HTTP GET request (e.g., `/pages?target=<domain-name>`) and scans all child URLs within the domain.
+- **Domain Crawling**: Accepts a domain URL via HTTP GET request (e.g., `/pages?target=<domain-url>`) and scans all child URLs within the domain.
 - **External Link Scanning**: Configurable option to enable or disable crawling of external links outside the provided domain.
 - **Built with Maven**: Dependency management and build process.
 - **Spring Boot**: Production-ready web application framework.
@@ -40,4 +40,4 @@ The application will start on `http://localhost:8080` by default.
 ## Usage
 
 ### Crawl a Domain
-Send an HTTP GET request to the `/pages with query param as target=<your-target-url>
+Send an HTTP GET request to the `/pages with query param as target=<domain-url>

@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.bot</groupId>
-	<artifactId>crawler</artifactId>
+	<artifactId>web-crawler</artifactId>
 	<version>1.0.0</version>
-	<name>crawler</name>
+	<name>web-crawler</name>
 	<description>Web crawler</description>
 	<properties>
 		<java.version>17</java.version>
