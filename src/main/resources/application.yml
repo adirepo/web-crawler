@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: crawler
+
+logging.level.com.bot.crawler: DEBUG
+
+### Custom Properties ###
+crawler:
+  external-links-capture:
+    enable: true
