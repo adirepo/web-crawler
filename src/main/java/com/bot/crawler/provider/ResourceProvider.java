@@ -2,7 +2,7 @@ package com.bot.crawler.provider;
 
 import java.util.Set;
 
-public interface HtmlDocumentProvider {
+public interface ResourceProvider {
 
     /**
      * Finds all the sub-links or child links from the given hyperlinks' page

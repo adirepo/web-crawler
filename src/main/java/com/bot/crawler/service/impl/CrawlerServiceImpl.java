@@ -1,6 +1,6 @@
 package com.bot.crawler.service.impl;
 
-import com.bot.crawler.provider.HtmlDocumentProvider;
+import com.bot.crawler.provider.ResourceProvider;
 import com.bot.crawler.service.CrawlerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import static com.bot.crawler.util.Validator.isNotYetScanned;
 @RequiredArgsConstructor
 public class CrawlerServiceImpl implements CrawlerService {
 
-    private final HtmlDocumentProvider htmlDocumentProvider;
+    private final ResourceProvider resourceProvider;
 
     @Value("${crawler.external-links-capture.enable}")
     boolean externalLinkCaptureEnabled;
@@ -48,9 +48,9 @@ public class CrawlerServiceImpl implements CrawlerService {
         }
 
         // Read the page and fetch the hyperlink elements from it
-        Set<String> childLinks = htmlDocumentProvider.findChildLinks(currentLink);
+        Set<String> childLinks = resourceProvider.findChildLinks(currentLink);
 
-        for(String childLink : childLinks){
+        for(String childLink : childLinks) {
             log.debug("Current hyperlink: {}, child hyperlink: {}", currentLink, childLink);
 
             // If the found URL is not yet scanned and is from the same domain, then proceed with scan for child pages.

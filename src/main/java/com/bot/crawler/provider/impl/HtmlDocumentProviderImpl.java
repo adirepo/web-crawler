@@ -1,11 +1,12 @@
 package com.bot.crawler.provider.impl;
 
-import com.bot.crawler.provider.HtmlDocumentProvider;
+import com.bot.crawler.provider.ResourceProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -19,14 +20,17 @@ import static com.bot.crawler.util.Validator.isRootPath;
 
 @Slf4j
 @Service
-public class HtmlDocumentProviderImpl implements HtmlDocumentProvider {
+public class HtmlDocumentProviderImpl implements ResourceProvider {
+
+    @Value("${crawler.source-connect-timeout}")
+    int timeout; // Connect timeout in seconds
 
     @Override
     public Set<String> findChildLinks(String hyperlink) {
         log.debug("Current thread {}", Thread.currentThread());
         Document document;
         try {
-            document = Jsoup.connect(hyperlink).get();
+            document = Jsoup.connect(hyperlink).timeout(timeout * 1000).get();
         } catch (IOException e) {
             log.error("Failed to connect to URL: {}", hyperlink, e);
             return Set.of();
@@ -44,11 +48,11 @@ public class HtmlDocumentProviderImpl implements HtmlDocumentProvider {
 
             // Skip if the URL is invalid or blank
             if (!StringUtils.hasText(hrefElement.attr(ATTR_HREF))) {
-                log.debug("Blank href attribute for link {}", hrefElement);
+                log.info("Blank href attribute for link {}", hrefElement);
                 continue;
             }
 
-            // Convert the element hrefElement into an absolute hyperlink
+            // Convert the href attribute of element into an absolute hyperlink
             String childLink = hrefElement.absUrl(ATTR_HREF);
             childLinks.add(childLink);
         }
