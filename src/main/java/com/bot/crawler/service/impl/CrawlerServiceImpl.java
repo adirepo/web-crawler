@@ -1,127 +1,67 @@
 package com.bot.crawler.service.impl;
 
+import com.bot.crawler.provider.HtmlDocumentProvider;
 import com.bot.crawler.service.CrawlerService;
-import com.bot.crawler.service.HtmlDocumentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.CompletableFuture;
 
-import static com.bot.crawler.constants.Constants.ATTR_HREF;
-import static com.bot.crawler.constants.Constants.ELEMENT_HREF;
-import static com.bot.crawler.constants.Constants.ROOT_PATH;
+import static com.bot.crawler.util.Validator.hasSameDomain;
+import static com.bot.crawler.util.Validator.isNotYetScanned;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class CrawlerServiceImpl implements CrawlerService {
 
-    private final HtmlDocumentService htmlDocumentService;
+    private final HtmlDocumentProvider htmlDocumentProvider;
 
     @Value("${crawler.external-links-capture.enable}")
     boolean externalLinkCaptureEnabled;
 
+    @Value("${crawler.depth-based-scan.enable}")
+    boolean isDepthBasedScanEnabled;
+
     @Override
-    public Set<String> scanTarget(String target) {
-        log.debug("Starting scan of target URL {}", target);
+    public Set<String> scanTarget(String target, int depth) {
+        log.info("Starting scan of target URL {}", target);
         Set<String> scannedLinks = new TreeSet<>();
-        this.scanPage(target, scannedLinks);
+        this.scanPage(target, scannedLinks, depth);
+        log.info("Finished scan with {} crawled URLs for target {}", scannedLinks.size(), target);
         return scannedLinks;
     }
 
-    private void scanPage(String currentLink, Set<String> scannedLinks) {
+    private void scanPage(String currentLink, Set<String> scannedLinks, int depth) {
         log.debug("Scanning page: {}", currentLink);
-
-        // Read the page and fetch the hyperlink elements from it
-        CompletableFuture<Document> future = htmlDocumentService.fetchPageAsDocument(currentLink);
-
-        Document document = null;
-        future.thenAccept(fetchedDocument -> {
-                    if (ObjectUtils.isEmpty(fetchedDocument)) {
-                        log.warn("Document is null or empty for link {}", currentLink);
-                        return;
-                    } else {
-                        document = fetchedDocument;
-                    }
-                });
 
         // Capture the current link
         scannedLinks.add(currentLink);
 
-        Elements hrefElements = document.select(ELEMENT_HREF);
+        // If depth based scan is enabled and the depth is reached then return
+        if (isDepthBasedScanEnabled && depth <= 0) {
+            log.info("The scan has reached requested depth");
+            return;
+        }
 
-        for (Element hrefElement : hrefElements) {
-            // Skip if there is home page relative URL present on this page. Eg: site logo
-            if (isRootPath(hrefElement.attr(ATTR_HREF))) {
-                log.debug("Skipping root URL '/'");
-                continue;
-            }
+        // Read the page and fetch the hyperlink elements from it
+        Set<String> childLinks = htmlDocumentProvider.findChildLinks(currentLink);
 
-            // Return if the URL is invalid or blank
-            if (!StringUtils.hasText(hrefElement.attr(ATTR_HREF))) {
-                log.debug("Blank href attribute for link {}", hrefElement);
-                return;
-            }
+        for(String childLink : childLinks){
+            log.debug("Current hyperlink: {}, child hyperlink: {}", currentLink, childLink);
 
-            // Convert the element hrefElement into an absolute hyperlink
-            String subLink = hrefElement.absUrl(ATTR_HREF);
-            log.debug("Current hyperlink: {}, Sub hyperlink: {}", currentLink, subLink);
-
-            // If the found URL is not yet scanned and is from the same domain, then proceed with scan for subpages.
+            // If the found URL is not yet scanned and is from the same domain, then proceed with scan for child pages.
             // Else, just capture the URL as external URL.
-            if (isNotYetScanned(subLink, scannedLinks) && hasSameDomain(currentLink, subLink)) {
-                scanPage(subLink, scannedLinks); // Scan the subpages
-            } else if (isNotYetScanned(subLink, scannedLinks) && externalLinkCaptureEnabled) {
-                scannedLinks.add(subLink); // Capture the (external) hyperlink but don't scan it
+            boolean isNotYetScanned = isNotYetScanned(childLink, scannedLinks);
+
+            if (isNotYetScanned && hasSameDomain(currentLink, childLink)) {
+                scanPage(childLink, scannedLinks, depth - 1); // Scan the child pages
+            } else if (isNotYetScanned && externalLinkCaptureEnabled) {
+                scannedLinks.add(childLink); // Capture the (external) hyperlink but don't scan it
             }
         }
-    }
-
-    /**
-     * Check whether the given hyperlink has already been scanned
-     * @param subLink the hyperlink to be checked
-     * @param scannedLinks the set of already scanned hyperlinks
-     * @return true if the link is already scanned, else written false
-     */
-    private boolean isNotYetScanned(String subLink, Set<String> scannedLinks) {
-        return !scannedLinks.contains(subLink);
-    }
-
-    /**
-     * Checks whether the given link is part of the same domain
-     * @param parentLink the reference link to be checked against
-     * @param subLink the link to be checked
-     * @return true if the subLink belongs to same domain, else returns false
-     */
-    private boolean hasSameDomain(String parentLink, String subLink) {
-        String domain;
-        try {
-            URL url = new URL(parentLink);
-            domain = url.getHost();
-        } catch (MalformedURLException e) {
-            log.error("The URL '{}' is invalid", parentLink);
-            return false;
-        }
-        return subLink.contains(domain);
-    }
-
-    /**
-     * Checks whether the given href attribute is a root path i.e. '/'
-     * @param href the attribute to be checked
-     * @return true if it is root path, else returns false
-     */
-    private boolean isRootPath(String href) {
-        return href.trim().equals(ROOT_PATH);
     }
 }

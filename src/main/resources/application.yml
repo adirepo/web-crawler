@@ -8,3 +8,5 @@ logging.level.com.bot.crawler: DEBUG
 crawler:
   external-links-capture:
     enable: true
+  depth-based-scan:
+    enable: true

@@ -17,8 +17,8 @@ public class CrawlerController {
     private final CrawlerService crawlerService;
 
     @GetMapping("/pages")
-    public ResponseEntity<CrawlResponse> crawlUrl(@RequestParam("target") String target) {
-        Set<String> pages = crawlerService.scanTarget(target);
+    public ResponseEntity<CrawlResponse> crawlUrl(@RequestParam("target") String target, @RequestParam(name = "depth", required = false, defaultValue = "5") int depth) {
+        Set<String> pages = crawlerService.scanTarget(target, depth);
         CrawlResponse response = new CrawlResponse(target, pages);
         return ResponseEntity.ok(response);
     }
