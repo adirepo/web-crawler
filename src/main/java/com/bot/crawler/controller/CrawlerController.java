@@ -12,7 +12,7 @@ import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
-public class CrawlController {
+public class CrawlerController {
 
     private final CrawlerService crawlerService;
 

@@ -1,6 +1,6 @@
 spring:
   application:
-    name: crawler
+    name: web-crawler
 
 logging.level.com.bot.crawler: DEBUG
 
