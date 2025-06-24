@@ -16,7 +16,14 @@ import java.time.LocalDateTime;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Global exception handler
+    // Global exception handler for ValidationException
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ErrorResponse> handleException(ValidationException ex) {
+        ErrorResponse error = new ErrorResponse("Bad Request: " + ex.getMessage(), LocalDateTime.now());
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    // Global exception handler for Exception
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception ex) {
         ErrorResponse error = new ErrorResponse("Internal Server Error: " + ex.getMessage(), LocalDateTime.now());
