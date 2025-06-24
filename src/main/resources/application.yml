@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: web-crawler
+
+logging.level.com.bot.crawler: DEBUG
+
+### Custom Properties ###
+crawler:
+  sourceConnectTimeout: 5 # connect timeout in seconds
+  externalLinksCapture:
+    enable: false # Captures the external link references
+  depthBasedScan:
+    enable: false # Limits the scan till the depth provided in the request
+  rateLimit:
+    enable: false
+    delay: 5 # Delay per crawl execution in seconds
