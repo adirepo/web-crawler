@@ -15,8 +15,12 @@ public class Validator {
 
     /**
      * Check whether the given hyperlink has already been scanned
-     * @param hyperLink the hyperlink to be checked
-     * @param scannedLinks the set of already scanned hyperlinks
+     *
+     * @param hyperLink
+     *            the hyperlink to be checked
+     * @param scannedLinks
+     *            the set of already scanned hyperlinks
+     *
      * @return true if the link is already scanned, else written false
      */
     public static boolean isNotYetScanned(String hyperLink, Set<String> scannedLinks) {
@@ -25,8 +29,12 @@ public class Validator {
 
     /**
      * Checks whether the given link is part of the same domain
-     * @param parentLink the reference link to be checked against
-     * @param childLink the link to be checked
+     *
+     * @param parentLink
+     *            the reference link to be checked against
+     * @param childLink
+     *            the link to be checked
+     *
      * @return true if the childLink belongs to same domain, else returns false
      */
     public static boolean hasSameDomain(String parentLink, String childLink) {
@@ -43,7 +51,10 @@ public class Validator {
 
     /**
      * Checks whether the given href attribute is a root path i.e. '/'
-     * @param href the attribute to be checked
+     *
+     * @param href
+     *            the attribute to be checked
+     *
      * @return true if it is root path, else returns false
      */
     public static boolean isRootPath(String href) {

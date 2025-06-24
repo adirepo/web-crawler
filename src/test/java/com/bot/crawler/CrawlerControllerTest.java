@@ -35,7 +35,7 @@ public class CrawlerControllerTest {
     @MockitoBean
     private ResourceProvider resourceProvider;
 
-    private static final String TARGET_URL = "http://example.com";  // Test target URL
+    private static final String TARGET_URL = "http://example.com"; // Test target URL
 
     @Test
     @DisplayName("Test crawler for a successful scenario")
@@ -63,23 +63,25 @@ public class CrawlerControllerTest {
     public void testCrawlUrlWithCustomDepth() {
         /* Given */
         when(resourceProvider.findChildLinks(eq(TARGET_URL))).thenReturn(Set.of(TARGET_URL + "/my-page.html"));
-        when(resourceProvider.findChildLinks(eq(TARGET_URL + "/my-page.html"))).thenReturn(Set.of(TARGET_URL + "/my-child-page-1.html"));
-        when(resourceProvider.findChildLinks(eq(TARGET_URL + "/my-child-page-1.html"))).thenReturn(Set.of(TARGET_URL + "/my-child-page-2.html"));
-        when(resourceProvider.findChildLinks(eq(TARGET_URL + "/my-child-page-2.html"))).thenReturn(Set.of(TARGET_URL + "/my-child-page-3.html"));
+        when(resourceProvider.findChildLinks(eq(TARGET_URL + "/my-page.html")))
+                .thenReturn(Set.of(TARGET_URL + "/my-child-page-1.html"));
+        when(resourceProvider.findChildLinks(eq(TARGET_URL + "/my-child-page-1.html")))
+                .thenReturn(Set.of(TARGET_URL + "/my-child-page-2.html"));
+        when(resourceProvider.findChildLinks(eq(TARGET_URL + "/my-child-page-2.html")))
+                .thenReturn(Set.of(TARGET_URL + "/my-child-page-3.html"));
 
-        int customDepth = 2;  // Custom depth
+        int customDepth = 2; // Custom depth
 
         /* When */
         String REQUEST_URL = "http://localhost:" + port + "/pages?target=" + TARGET_URL;
         ResponseEntity<CrawlResponse> response = restTemplate.getForEntity(REQUEST_URL + "&depth=" + customDepth,
                 CrawlResponse.class);
 
-
         /* Then */
         // Assertions
         assertEquals(200, response.getStatusCode().value(), "Response status should be 200 OK");
         assertNotNull(response.getBody(), "Response body should not be null");
-        
+
         // Check if the target URL is correctly set in the response
         assertEquals(TARGET_URL, response.getBody().getDomain(), "Target URL should match the request");
 
@@ -98,21 +100,21 @@ public class CrawlerControllerTest {
 
         /* When */
         String REQUEST_URL = "http://localhost:" + port + "/pages?target=" + targetUrl;
-        ResponseEntity<ErrorResponse> response = restTemplate.getForEntity(REQUEST_URL,
-                ErrorResponse.class);
+        ResponseEntity<ErrorResponse> response = restTemplate.getForEntity(REQUEST_URL, ErrorResponse.class);
 
         /* Then */
         // Assertions
         assertEquals(400, response.getStatusCode().value(), "Response status should be 400 Bad Request");
-        assertEquals("Bad Request: Target URL can not be blank", response.getBody().getMessage(), "Response status should be 400 Bad Request");
+        assertEquals("Bad Request: Target URL can not be blank", response.getBody().getMessage(),
+                "Response status should be 400 Bad Request");
     }
 
     @Test
     @DisplayName("Test crawler to capture external URLs from the given target")
     public void testCrawlUrlWithExternalUrls() {
         /* Given */
-        when(resourceProvider.findChildLinks(eq(TARGET_URL))).thenReturn(Set.of(TARGET_URL + "/my-page-1.html",
-                TARGET_URL + "/my-child-page-1.html", "https://github.com"));
+        when(resourceProvider.findChildLinks(eq(TARGET_URL))).thenReturn(
+                Set.of(TARGET_URL + "/my-page-1.html", TARGET_URL + "/my-child-page-1.html", "https://github.com"));
 
         /* When */
         String REQUEST_URL = "http://localhost:" + port + "/pages?target=" + TARGET_URL;
@@ -138,7 +140,8 @@ public class CrawlerControllerTest {
     public void testCrawlUrlForExceptionOnTargetUrl() {
         /* Given */
         // Throw exception
-        when(resourceProvider.findChildLinks(eq(TARGET_URL))).thenThrow(new CrawlerException(String.format("Failed to connect to URL: %s", TARGET_URL), new RuntimeException()));
+        when(resourceProvider.findChildLinks(eq(TARGET_URL))).thenThrow(new CrawlerException(
+                String.format("Failed to connect to URL: %s", TARGET_URL), new RuntimeException()));
 
         /* When */
         String REQUEST_URL = "http://localhost:" + port + "/pages?target=" + TARGET_URL;
@@ -148,7 +151,8 @@ public class CrawlerControllerTest {
         // Assertions
         assertEquals(500, response.getStatusCode().value(), "Response status should be 200 OK");
         assertNotNull(response.getBody(), "Response body should not be null");
-        assertEquals("Internal Server Error: Failed to connect to URL: http://example.com", response.getBody().getMessage(), "Exception message should match");
+        assertEquals("Internal Server Error: Failed to connect to URL: http://example.com",
+                response.getBody().getMessage(), "Exception message should match");
     }
 
     @Test
@@ -156,8 +160,11 @@ public class CrawlerControllerTest {
     public void testCrawlUrlForExceptionOnChildUrl() {
         /* Given */
         when(resourceProvider.findChildLinks(eq(TARGET_URL))).thenReturn(Set.of(TARGET_URL + "/my-page.html"));
-        when(resourceProvider.findChildLinks(eq(TARGET_URL + "/my-page.html"))).thenReturn(Set.of(TARGET_URL + "/my-child-page-1.html"));
-        when(resourceProvider.findChildLinks(eq(TARGET_URL + "/my-child-page-1.html"))).thenThrow(new CrawlerException(String.format("Failed to connect to URL: %s", TARGET_URL + "/my-child-page-1.html"), new RuntimeException()));
+        when(resourceProvider.findChildLinks(eq(TARGET_URL + "/my-page.html")))
+                .thenReturn(Set.of(TARGET_URL + "/my-child-page-1.html"));
+        when(resourceProvider.findChildLinks(eq(TARGET_URL + "/my-child-page-1.html"))).thenThrow(new CrawlerException(
+                String.format("Failed to connect to URL: %s", TARGET_URL + "/my-child-page-1.html"),
+                new RuntimeException()));
 
         /* When */
         String REQUEST_URL = "http://localhost:" + port + "/pages?target=" + TARGET_URL;
@@ -174,7 +181,7 @@ public class CrawlerControllerTest {
         // Check that pages are returned
         Set<String> pages = response.getBody().getPages();
         assertEquals(pages.size(), 3, "Pages list count should match");
-        assertTrue(pages.containsAll(Set.of(TARGET_URL, TARGET_URL + "/my-page.html",
-                TARGET_URL + "/my-child-page-1.html")));
+        assertTrue(pages
+                .containsAll(Set.of(TARGET_URL, TARGET_URL + "/my-page.html", TARGET_URL + "/my-child-page-1.html")));
     }
 }

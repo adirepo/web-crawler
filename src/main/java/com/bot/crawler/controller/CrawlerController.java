@@ -24,8 +24,9 @@ public class CrawlerController {
     private final CrawlerService crawlerService;
 
     @GetMapping("/pages")
-    public ResponseEntity<CrawlResponse> crawlUrl(@RequestParam("target") String target, @RequestParam(name = "depth", required = false, defaultValue = "5") int depth) {
-        if (!StringUtils.hasText(target)){
+    public ResponseEntity<CrawlResponse> crawlUrl(@RequestParam("target") String target,
+            @RequestParam(name = "depth", required = false, defaultValue = "5") int depth) {
+        if (!StringUtils.hasText(target)) {
             log.error("Target URL can not be blank");
             throw new ValidationException("Target URL can not be blank");
         }
