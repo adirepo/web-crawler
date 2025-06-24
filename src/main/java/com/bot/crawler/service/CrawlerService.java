@@ -2,6 +2,9 @@ package com.bot.crawler.service;
 
 import java.util.Set;
 
+/**
+ * The service interface for implementing functional logic
+ */
 public interface CrawlerService {
 
     /**

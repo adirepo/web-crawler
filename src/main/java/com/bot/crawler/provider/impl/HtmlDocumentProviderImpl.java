@@ -1,5 +1,6 @@
 package com.bot.crawler.provider.impl;
 
+import com.bot.crawler.exception.CrawlerException;
 import com.bot.crawler.provider.ResourceProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
@@ -22,7 +23,7 @@ import static com.bot.crawler.util.Validator.isRootPath;
 @Service
 public class HtmlDocumentProviderImpl implements ResourceProvider {
 
-    @Value("${crawler.source-connect-timeout}")
+    @Value("${crawler.sourceConnectTimeout}")
     int timeout; // Connect timeout in seconds
 
     @Override
@@ -32,8 +33,7 @@ public class HtmlDocumentProviderImpl implements ResourceProvider {
         try {
             document = Jsoup.connect(hyperlink).timeout(timeout * 1000).get();
         } catch (IOException e) {
-            log.error("Failed to connect to URL: {}", hyperlink, e);
-            return Set.of();
+            throw new CrawlerException(String.format("Failed to connect to URL: %s", hyperlink), e);
         }
 
         Set<String> childLinks = new HashSet<>();

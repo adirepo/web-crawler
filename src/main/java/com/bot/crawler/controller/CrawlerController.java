@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Set;
 
+/**
+ * The main rest controller for request routing
+ */
 @RestController
 @RequiredArgsConstructor
 public class CrawlerController {

@@ -6,8 +6,11 @@ logging.level.com.bot.crawler: DEBUG
 
 ### Custom Properties ###
 crawler:
-  external-links-capture:
+  sourceConnectTimeout: 5 # connect timeout in seconds
+  externalLinksCapture:
+    enable: false # Captures the external link references
+  depthBasedScan:
+    enable: false # Limits the scan till the depth provided in the request
+  rateLimit:
     enable: false
-  depth-based-scan:
-    enable: true
-  source-connect-timeout: 5 # connect timeout in seconds
+    delay: 5 # Delay per crawl execution in seconds
