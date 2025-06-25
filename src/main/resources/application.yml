@@ -2,7 +2,9 @@ spring:
   application:
     name: web-crawler
 
-logging.level.com.bot.crawler: DEBUG
+logging:
+  level:
+    com.bot.crawler: INFO
 
 ### Custom Properties ###
 crawler:
